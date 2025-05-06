@@ -13,6 +13,7 @@ class Product(BaseModel):
     price: float | None = None
     quantity: int | None = None
     image_url: HttpUrl | None = None
+    summarys: list[str] | None = None
 
     def update(self, **updates) -> "Product":
         updated = self.model_dump()

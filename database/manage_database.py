@@ -52,7 +52,27 @@ async def add_data_to_firestore(
     collection: str,
 ) -> bool:
     try:
-        _db.collection(collection).document(document).set(data)
+        _db.collection(collection).document(
+            document).document("document").set(data)
+        return True
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def add_product_to_firestore(
+    data: Any,
+    document: tuple[str],
+    collection: str,
+) -> bool:
+    try:
+        (
+            _db.collection(collection)
+            .document(document[0])
+            .collection("product")
+            .document(document[1])
+            .set(data)
+        )
+# _db.collection(collection).document(document).document("document").set(data)
         return True
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -95,11 +115,72 @@ async def get_all_documents_from_collection(collection: str) -> list[dict]:
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-async def get_all_documents_product(document:str, collection: str) -> list[dict]:
+
+async def get_all_documents_product(document: str, collection: str) -> list[dict]:
     # Get a reference to the Firestore collection
     try:
-        results = _db.collection(collection).document(document).get().to_dict()
+        results = []
+        collect_ref = (
+            _db.collection(collection)
+            .document(document)
+            .collection("product")
+        )
+        docs = collect_ref.stream()
+        results = []
+        for doc in docs:
+            data = doc.to_dict()
+            results.append(data)
         return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def get_product_document(document: tuple[str], collection: str) -> list[dict]:
+    # Get a reference to the Firestore collection
+    try:
+        results = (
+            _db.collection(collection)
+            .document(document[0])
+            .collection("product")
+            .document(document[1])
+            .get()
+            .to_dict()
+        )
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def update_product_in_firestore(
+    data: Any,
+    document: tuple[str],
+    collection: str,
+) -> bool:
+    try:
+        (
+            _db.collection(collection)
+            .document(document[0])
+            .collection("product")
+            .document(document[1]).update(data)
+        )
+        return True
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def delete_product_from_firestore(
+    document: tuple[str],
+    collection: str,
+) -> bool:
+    try:
+        (
+            _db.collection(collection)
+            .document(document[0])
+            .collection("product")
+            .document(document[1])
+            .delete()
+        )
+        return True
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

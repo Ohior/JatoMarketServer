@@ -1,21 +1,21 @@
-import asyncio
-from json import dumps, load, loads
-
-from data_model.Product import Product
-from database.manage_database import get_all_documents_from_collection
-from utils.Tools import generateUUid
+from enum import Enum
+import random
+import string
 
 
-# data = asyncio.run(
-#     get_all_documents_from_collection(
-#         collection="data",
-#         # data=Product(
-#         #     uid=generateUUid(),
-#         #     name="Phone",
-#         #     price=200.5,
-#         #     quantity=10,
-#         # ).model_dump()
-#     )
-# )
+def generate_password(difficulty: str, length: int = 12) -> str:
+    match difficulty:
+        case "MEDIUM":
+            chars = string.ascii_letters + string.digits
+        case "HARD":
+            chars = string.ascii_letters + string.digits + string.punctuation
+        case _:
+            chars = string.ascii_lowercase
+    password = ''.join(random.choice(chars) for _ in range(length))
+    return password
 
-# print(dumps(data, indent=2))
+# Example usage:
+if __name__ == "__main__":
+    print("Generated passwords:")
+    for level in ["EASY", "MEDIUM", "HARD"]:
+        print(f"{level} password: {generate_password(level, 10)}")
